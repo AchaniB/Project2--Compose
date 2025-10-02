@@ -1,4 +1,4 @@
-*name: project2-compose
+*name: Project2--compose
 
 services:
   docker:
