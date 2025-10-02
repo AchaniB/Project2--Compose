@@ -28,7 +28,7 @@ services:
     volumes:
       - docker-certs-client:/certs/client:ro  # Mount client certs as read-only
       - jenkins-data:/var/jenkins_home  # Persistent Jenkins data storage
-      - /usr/bin/docker:/usr/bin/docker  # Link Docker binary for Jenkins
+      - /usr/bin/docker:/usr/bin/docker.sock  # Link Docker binary for Jenkins
     networks:
       - jenkins-net
     ports:
