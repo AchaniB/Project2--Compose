@@ -1,48 +1,52 @@
+version: '3.8'
+
 services:
-  # Docker-In-Docker (DinD) Service
+  # Docker-in-Docker service
   dind:
-    image: docker:24.0-dind
-    container_name: dind
+    image: docker:dind
+    container_name: jenkins-dind
     privileged: true
-    user: root
     environment:
-      - DOCKER_TLS_CERTDIR=/certs  # Enable TLS for Docker communication
+      - DOCKER_TLS_CERTDIR=/certs
     volumes:
-      - docker-certs-ca:/certs/ca  # Certificate for Docker CA
-      - docker-certs-client:/certs/client  # Client certificate for Jenkins
-      - jenkins-data:/var/jenkins_home  # Persistent Jenkins data
+      - dind-storage:/var/lib/docker
+      - dind-certs:/certs
     networks:
-      jenkins-net:
-        aliases:
-          - docker  # Alias for Jenkins to access DinD via tcp://docker:2376
+      - jenkins-network
+    restart: unless-stopped
+    command: 
+      - --storage-driver=overlay2
+      - --tls=false
 
-  # Jenkins Service
+  # Jenkins service
   jenkins:
-    image: jenkins/jenkins:lts-jdk11
+    image: jenkins/jenkins:lts-jdk17
     container_name: jenkins
-    user: root  # Allow Jenkins to run Docker commands
     environment:
-      - DOCKER_HOST=tcp://docker:2376  # Jenkins connects to DinD using this address
-      - DOCKER_CERT_PATH=/certs/client  # Path to Docker client certs in Jenkins
-      - DOCKER_TLS_VERIFY=1  # Enable TLS verification for secure Docker communication
-    volumes:
-      - docker-certs-client:/certs/client:ro  # Mount client certs as read-only
-      - jenkins-data:/var/jenkins_home  # Persistent Jenkins data storage
-      - /var/run/docker.sock:/var/run/docker.sock  # Link Docker binary for Jenkins
-    networks:
-      - jenkins-net
+      - DOCKER_HOST=tcp://dind:2375
+      - DOCKER_TLS_VERIFY=0
     ports:
-      - "8080:8080"  # Jenkins web UI
-      - "50000:50000"  # Jenkins agent port
-    restart: unless-stopped  # Ensure Jenkins restarts on failure or reboot
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock  # Alternative approach
+    networks:
+      - jenkins-network
+    depends_on:
+      - dind
+    restart: unless-stopped
+    privileged: true
 
-# Define volumes for data persistence
 volumes:
-  docker-certs-ca:  # Store CA certificates for Docker
-  docker-certs-client:  # Store client certificates for Jenkins-Docker communication
-  jenkins-data:  # Persistent Jenkins data
+  jenkins_home:
+    name: jenkins-home-data
+  dind-storage:
+    name: dind-storage-data
+  dind-certs:
+    name: dind-certs-data
 
-# Define the network used by Jenkins and DinD
 networks:
-  jenkins-net:
+  jenkins-network:
+    name: jenkins-network
     driver: bridge
