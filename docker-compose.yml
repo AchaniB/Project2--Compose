@@ -36,6 +36,13 @@ services:
       - "50000:50000"  # Jenkins agent port
     restart: unless-stopped  # Ensure Jenkins restarts on failure or reboot
 
+    entrypoint: >
+       sh -c "
+       apt-get update &&
+       apt-get install -y docker.io &&
+       /usr/local/bin/jenkins.sh
+       "
+
 # Define volumes for data persistence
 volumes:
   docker-certs-ca:  # Store CA certificates for Docker
