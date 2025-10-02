@@ -1,4 +1,6 @@
-name: Project2--compose
+#Project name: Project2--compose
+#student id : 21741102
+# Docker Compose for Container and Jenkins Configuration
 
 services:
   docker:
