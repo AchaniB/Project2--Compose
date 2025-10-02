@@ -28,20 +28,13 @@ services:
     volumes:
       - docker-certs-client:/certs/client:ro  # Mount client certs as read-only
       - jenkins-data:/var/jenkins_home  # Persistent Jenkins data storage
-        # Link Docker binary for Jenkins
+      - /var/run/docker.sock:/var/run/docker.sock  # Link Docker binary for Jenkins
     networks:
       - jenkins-net
     ports:
       - "8080:8080"  # Jenkins web UI
       - "50000:50000"  # Jenkins agent port
     restart: unless-stopped  # Ensure Jenkins restarts on failure or reboot
-
-    entrypoint: >
-       sh -c "
-       apt-get update &&
-       apt-get install -y docker.io &&
-       /usr/local/bin/jenkins.sh
-       "
 
 # Define volumes for data persistence
 volumes:
