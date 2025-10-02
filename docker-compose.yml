@@ -35,4 +35,4 @@ volumes:
 
 networks:
   ci_net:
-    driver: bridge*
+    driver: bridge
