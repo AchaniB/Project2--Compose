@@ -1,52 +1,38 @@
-version: '3.8'
+*name: project2-compose
 
 services:
-  # Docker-in-Docker service
-  dind:
-    image: docker:dind
-    container_name: jenkins-dind
+  docker:
+    image: docker:26-dind
     privileged: true
     environment:
-      - DOCKER_TLS_CERTDIR=/certs
+      DOCKER_TLS_CERTDIR: /certs
     volumes:
-      - dind-storage:/var/lib/docker
-      - dind-certs:/certs
-    networks:
-      - jenkins-network
-    restart: unless-stopped
-    command: 
-      - --storage-driver=overlay2
-      - --tls=false
+      - docker_data:/var/lib/docker
+      - docker_certs:/certs                # DinD writes client/server certs here
+      - jenkins_home:/var/jenkins_home     # <-- RW so DinD can bind-mount workspaces
+    networks: [ci_net]
 
-  # Jenkins service
   jenkins:
-    image: jenkins/jenkins:lts-jdk17
-    container_name: jenkins
+    build: ./jenkins
     environment:
-      - DOCKER_HOST=tcp://dind:2375
-      - DOCKER_TLS_VERIFY=0
+      DOCKER_HOST: tcp://docker:2376
+      DOCKER_CERT_PATH: /certs/client      # client certs live under /certs/client
+      DOCKER_TLS_VERIFY: "1"
     ports:
       - "8080:8080"
       - "50000:50000"
-    volumes:
-      - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock  # Alternative approach
-    networks:
-      - jenkins-network
     depends_on:
-      - dind
-    restart: unless-stopped
-    privileged: true
+      - docker
+    volumes:
+      - jenkins_home:/var/jenkins_home     # Jenkins home (workspace lives here)
+      - docker_certs:/certs:ro             # mount the WHOLE certs tree (cleaner)
+    networks: [ci_net]
 
 volumes:
+  docker_data:
+  docker_certs:
   jenkins_home:
-    name: jenkins-home-data
-  dind-storage:
-    name: dind-storage-data
-  dind-certs:
-    name: dind-certs-data
 
 networks:
-  jenkins-network:
-    name: jenkins-network
-    driver: bridge
+  ci_net:
+    driver: bridge*
