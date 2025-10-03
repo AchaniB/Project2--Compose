@@ -33,7 +33,7 @@ services:
     depends_on:
       - docker
     volumes:
-      - jenkins_home:/var/jenkins_home
+      - project2--compose_jenkins_home:/var/jenkins_home
       - docker_certs:/certs:ro           # Mount client certs read-only
       - /var/run/docker.sock:/var/run/docker.sock  # Optional: allows direct access to host Docker CLI
     networks:
