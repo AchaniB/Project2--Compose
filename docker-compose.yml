@@ -1,4 +1,4 @@
-version: "3.8"  # optional but good to specify
+version: "3.8"  #optional but good to specify
 
 services:
   # Docker-in-Docker (DinD) service
