@@ -1,14 +1,13 @@
-# Start from official Node.js base image
+# ✅ Start FROM official Node.js 16 Alpine image
 FROM node:16-alpine
 
-# (Optional) Install Docker CLI if needed inside this image
+# 🧰 (Optional) Install Docker CLI if you need docker-in-docker
 RUN apk add --no-cache docker
 
-# (Optional) Install other tools
-# RUN apk add --no-cache git curl bash
+# ✅ Confirm node + npm are available
+RUN node -v && npm -v
 
-# Set work directory (not required, but good practice)
+# Set a working directory (optional)
 WORKDIR /app
 
-# (Optional) Default command
-CMD [ "node" ]
+CMD ["sh"]
