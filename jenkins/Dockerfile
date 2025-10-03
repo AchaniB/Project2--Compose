@@ -1,15 +1,10 @@
-FROM node:16-alpine
+FROM jenkins/jenkins:lts-jdk17
 
-# Install any additional tools you need
-RUN apk add --no-cache \
-    git \
-    openssh-client \
-    python3 \
-    make \
-    g++
+USER root
 
-# Create and set working directory
-WORKDIR /app
+# Install docker client
+RUN apt-get update && \
+    apt-get install -y docker.io && \
+    rm -rf /var/lib/apt/lists/*
 
-# Set npm cache permissions
-RUN npm config set cache /tmp --global
+USER jenkins
