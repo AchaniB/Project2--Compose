@@ -18,7 +18,7 @@ services:
         aliases:
           - docker
 
-  # Jenkins service
+  # Jenkins services
   jenkins:
     build: ./jenkins   # Make sure you have a Dockerfile in ./jenkins
     container_name: jenkins
