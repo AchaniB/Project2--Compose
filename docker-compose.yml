@@ -35,7 +35,7 @@ services:
     volumes:
       - jenkins_home:/var/jenkins_home
       - docker_certs:/certs:ro           # Mount client certs read-only
-      - /usr/bin/docker:/usr/bin/docker  # Optional: allows direct access to host Docker CLI
+      - /usr/bin/docker:/usr/bin/docker.sock  # Optional: allows direct access to host Docker CLI
     networks:
       - jenkins-net
     restart: unless-stopped
