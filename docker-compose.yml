@@ -1,6 +1,7 @@
-version: "3.8"
+version: "3.8"  # optional but good to specify
 
 services:
+  # Docker-in-Docker (DinD) service
   docker:
     image: docker:26-dind
     container_name: jenkins-dind
@@ -10,15 +11,16 @@ services:
       DOCKER_TLS_CERTDIR: /certs
     volumes:
       - docker_data:/var/lib/docker
-      - docker_certs:/certs
-      - jenkins_home:/var/jenkins_home
+      - docker_certs:/certs               # DinD writes client/server certs here
+      - jenkins_home:/var/jenkins_home    # So DinD can mount Jenkins workspace
     networks:
       jenkins-net:
         aliases:
           - docker
 
+  # Jenkins service
   jenkins:
-    build: ./jenkins
+    build: ./jenkins   # Make sure you have a Dockerfile in ./jenkins
     container_name: jenkins
     user: root
     environment:
@@ -26,22 +28,25 @@ services:
       DOCKER_CERT_PATH: /certs/client
       DOCKER_TLS_VERIFY: "1"
     ports:
-      - "8080:8080"
-      - "50000:50000"
+      - "8080:8080"      # Jenkins web UI
+      - "50000:50000"    # Jenkins agent communication
     depends_on:
       - docker
     volumes:
       - jenkins_home:/var/jenkins_home
-      - docker_certs:/certs:ro
+      - docker_certs:/certs:ro           # Mount client certs read-only
+      - /usr/bin/docker:/usr/bin/docker  # Optional: allows direct access to host Docker CLI
     networks:
       - jenkins-net
     restart: unless-stopped
 
+# Volumes for persistent data
 volumes:
   docker_data:
   docker_certs:
   jenkins_home:
 
+# Docker network
 networks:
   jenkins-net:
     driver: bridge
