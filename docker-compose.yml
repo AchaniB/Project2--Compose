@@ -1,50 +1,47 @@
 version: "3.8"
 
 services:
-  # Docker-in-Docker (DinD) service
   docker:
     image: docker:26-dind
     container_name: jenkins-dind
     privileged: true
     user: root
     environment:
-      DOCKER_TLS_CERTDIR: /certs        # Enable TLS certificates
+      DOCKER_TLS_CERTDIR: /certs
     volumes:
-      - docker_data:/var/lib/docker     # Persist Docker image layers
-      - docker_certs:/certs             # Store TLS certs
+      - docker_data:/var/lib/docker
+      - docker_certs:/certs
+      - jenkins_home:/var/jenkins_home
     networks:
       jenkins-net:
         aliases:
           - docker
 
-  # Jenkins service
   jenkins:
-    image: jenkins/jenkins:lts-jdk17    # Stable Jenkins LTS with JDK 17
+    build: ./jenkins
     container_name: jenkins
-    user: root                          # Allow Jenkins to run Docker commands
+    user: root
     environment:
       DOCKER_HOST: tcp://docker:2376
       DOCKER_CERT_PATH: /certs/client
       DOCKER_TLS_VERIFY: "1"
     ports:
-      - "8080:8080"                     # Jenkins Web UI
-      - "50000:50000"                   # Jenkins agent communication
+      - "8080:8080"
+      - "50000:50000"
     depends_on:
       - docker
     volumes:
-      - jenkins_home:/var/jenkins_home  # Persist Jenkins configuration, jobs, plugins
-      - docker_certs:/certs:ro          # Mount DinD certs read-only
+      - jenkins_home:/var/jenkins_home
+      - docker_certs:/certs:ro
     networks:
       - jenkins-net
     restart: unless-stopped
 
-# Persistent volumes
 volumes:
   docker_data:
   docker_certs:
   jenkins_home:
 
-# Shared network
 networks:
   jenkins-net:
     driver: bridge
