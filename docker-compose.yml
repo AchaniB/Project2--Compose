@@ -28,7 +28,7 @@ services:
       DOCKER_CERT_PATH: /certs/client
       DOCKER_TLS_VERIFY: "1"
     ports:
-      - "8080:8080"      # Jenkins web UI
+      - "9090:8080"      # Jenkins web UI
       - "50000:50000"    # Jenkins agent communication
     depends_on:
       - docker
