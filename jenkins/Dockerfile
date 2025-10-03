@@ -1,10 +1,13 @@
-FROM jenkins/jenkins:lts-jdk17
+# ✅ Start FROM official Node.js 16 Alpine image
+FROM node:16-alpine
 
-USER root
+# 🧰 (Optional) Install Docker CLI if you need docker-in-docker
+RUN apk add --no-cache docker
 
-# Install docker client
-RUN apt-get update && \
-    apt-get install -y docker.io && \
-    rm -rf /var/lib/apt/lists/*
+# ✅ Confirm node + npm are available
+RUN node -v && npm -v
 
-USER jenkins
+# Set a working directory (optional)
+WORKDIR /app
+
+CMD ["sh"]
