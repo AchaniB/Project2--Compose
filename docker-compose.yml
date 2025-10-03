@@ -1,7 +1,7 @@
 version: "3.8"  #optional but good to specify
 
 services:
-  # Docker-in-Docker (DinD) service
+  # Docker-in-Docker (DinD) services
   docker:
     image: docker:26-dind
     container_name: jenkins-dind
