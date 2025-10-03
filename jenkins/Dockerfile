@@ -1,13 +1,15 @@
-# ✅ Start FROM official Node.js 16 Alpine image
 FROM node:16-alpine
 
-# 🧰 (Optional) Install Docker CLI if you need docker-in-docker
-RUN apk add --no-cache docker
+# Install any additional tools you need
+RUN apk add --no-cache \
+    git \
+    openssh-client \
+    python3 \
+    make \
+    g++
 
-# ✅ Confirm node + npm are available
-RUN node -v && npm -v
-
-# Set a working directory (optional)
+# Create and set working directory
 WORKDIR /app
 
-CMD ["sh"]
+# Set npm cache permissions
+RUN npm config set cache /tmp --global
