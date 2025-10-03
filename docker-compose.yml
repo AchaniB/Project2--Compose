@@ -29,7 +29,7 @@ services:
       DOCKER_TLS_VERIFY: "1"
     ports:
       - "9090:8080"      # Jenkins web UI
-      - "50000:50000"    # Jenkins agent communication
+      - "50001:50000"    # Jenkins agent communication
     depends_on:
       - docker
     volumes:
